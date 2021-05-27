@@ -2,23 +2,10 @@
  * Module dependencies.
  */
 
-var fs = require('fs'),
-  path = require('path'),
+var path = require('path'),
   fileURLToPath = require('file-uri-to-path'),
   join = path.join,
   dirname = path.dirname,
-  exists =
-    (fs.accessSync &&
-      function(path) {
-        try {
-          fs.accessSync(path);
-        } catch (e) {
-          return false;
-        }
-        return true;
-      }) ||
-    fs.existsSync ||
-    path.existsSync,
   defaults = {
     arrow: process.env.NODE_BINDINGS_ARROW || ' → ',
     compiled: process.env.NODE_BINDINGS_COMPILED_DIR || 'compiled',
@@ -26,12 +13,11 @@ var fs = require('fs'),
     arch: process.arch,
     nodePreGyp:
       'node-v' +
-      process.versions.modules +
       '-' +
       process.platform +
       '-' +
       process.arch,
-    version: process.versions.node,
+    version: '14.0.0',
     bindings: 'bindings.node',
     try: [
       // node-gyp's linked version in the "build" dir
@@ -155,7 +141,7 @@ exports.getFileName = function getFileName(calling_file) {
   Error.prepareStackTrace = function(e, st) {
     for (var i = 0, l = st.length; i < l; i++) {
       fileName = st[i].getFileName();
-      if (fileName !== __filename) {
+      if (fileName !== window.filename) {
         if (calling_file) {
           if (fileName !== calling_file) {
             return;
@@ -202,8 +188,8 @@ exports.getRoot = function getRoot(file) {
       dir = process.cwd();
     }
     if (
-      exists(join(dir, 'package.json')) ||
-      exists(join(dir, 'node_modules'))
+      window.exists(join(dir, 'package.json')) ||
+      window.exists(join(dir, 'node_modules'))
     ) {
       // Found the 'package.json' file or 'node_modules' dir; we're done
       return dir;
